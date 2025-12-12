@@ -13,13 +13,11 @@ Route::get('/', function () {
 return view('welcome');  
 });  
   
-// Dashboard - محمي بالتحقق من تسجيل الدخول  
 Route::get('/dashboard', function () {  
 return view('dashboard');  
 })->middleware(['auth', 'verified'])->name('dashboard');  
   
   
-// Routes لاختبار العلاقات (اختياري)  
 Route::get('/test/blogs', function () {  
 return Blog::with('categories')->get();  
 });  
@@ -35,6 +33,13 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::put('/blogs/{blog}/restore', [BlogController::class, 'restore'])->name('blogs.restore');  
     Route::delete('/blogs/{blog}/force-delete', [BlogController::class, 'forceDelete'])->name('blogs.forceDelete');  
 });  
-  
-// Auth routes من Breeze  
+  // Frontend Blogs
+Route::get('/blogs', [BlogController::class, 'frontendIndex'])->name('blogs.frontend.index');
+Route::get('/blogs/{blog}', [BlogController::class, 'frontendShow'])->name('blogs.frontend.show');
+Route::get('/blogs/category/{category}', [BlogController::class, 'filterByCategory'])->name('blogs.frontend.filter');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/favorites', [BlogController::class, 'favorites'])->name('blogs.favorites');
+    Route::post('/blogs/{blog}/favorite', [BlogController::class, 'toggleFavorite'])->name('blogs.toggleFavorite');
+});
 require __DIR__.'/auth.php';   

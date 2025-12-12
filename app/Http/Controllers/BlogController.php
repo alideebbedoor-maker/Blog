@@ -100,4 +100,38 @@ class BlogController extends Controller
         $blog->forceDelete();
         return redirect()->route('blogs.trash')->with('success', 'Blog permanently deleted.');
     }
+    public function filterByCategory(Category $category) {
+    $blogs = $category->blogs()->with('categories')->get();
+    return view('frontend.blogs.index', compact('blogs'));
+}
+public function toggleFavorite(Blog $blog)
+{
+    $user = auth()->user();
+
+    if ($user->favorites()->where('blog_id', $blog->id)->exists()) {
+        $user->favorites()->detach($blog->id);
+        return back()->with('success', 'Removed from favorites');
+    } else {
+        $user->favorites()->attach($blog->id);
+        return back()->with('success', 'Added to favorites');
+    }
+}
+
+public function favorites()
+{
+    $favorites = auth()->user()->favorites()->with('categories')->get();
+    return view('frontend.favorites', compact('favorites'));
+
+}
+public function frontendIndex()
+{
+    $blogs = Blog::with('categories')->get();
+    $categories = Category::all();
+    return view('frontend.blogs.index', compact('blogs', 'categories'));
+}
+
+public function frontendShow(Blog $blog)
+{
+    return view('frontend.blogs.show', compact('blog'));
+}
 }
