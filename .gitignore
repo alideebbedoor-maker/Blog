@@ -1,8 +1,15 @@
+# Logs
 *.log
+
+# macOS
 .DS_Store
+
+# Environment files
 .env
 .env.backup
 .env.production
+
+# IDE / Editor folders
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -11,14 +18,31 @@
 /.phpunit.cache
 /.vscode
 /.zed
+
+# Composer / Node
 /auth.json
 /node_modules
+/vendor
+
+# Public build & hot reload
 /public/build
 /public/hot
-/public/storage
+
+# Storage
 /storage/*.key
 /storage/pail
-/vendor
+/storage/framework/
+/storage/logs/
+
+# Allow images in storage/app/public/blogs
+!/storage/app/public/blogs/
+
+# Homestead
 Homestead.json
 Homestead.yaml
+
+# Windows
 Thumbs.db
+
+# Ignore public storage symlink (optional, will be created via storage:link)
+public/storage
