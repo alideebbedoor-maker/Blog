@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
-    // ================= Admin Panel =================
 
     public function index()
     {
@@ -103,25 +102,47 @@ class BlogController extends Controller
         return redirect()->route('blogs.trash')->with('success', 'Blog permanently deleted.');
     }
 
-    // ================= Frontend =================
 
     public function frontendIndex()
     {
-        $blogs = Blog::with('categories')->get();
+        $blogs = Blog::with('categories')->latest()->get();
         $categories = Category::all();
+        
+        // تأكد من أن الملف موجود
+        if (!view()->exists('frontend.blogs.index')) {
+            // بديل مؤقت: استخدم ملف admin مع تعديلات
+            return view('blogs.index', compact('blogs', 'categories'))
+                ->with('isFrontend', true);
+        }
+        
         return view('frontend.blogs.index', compact('blogs', 'categories'));
     }
 
     public function frontendShow(Blog $blog)
     {
+        // تحميل العلاقات إذا لزم
+        $blog->load('categories');
+        
+        if (!view()->exists('frontend.blogs.show')) {
+            // بديل مؤقت
+            return view('blogs.edit', compact('blog'))
+                ->with('isFrontend', true);
+        }
+        
         return view('frontend.blogs.show', compact('blog'));
     }
-
     public function filterByCategory(Category $category)
     {
-        $blogs = $category->blogs()->with('categories')->get();
+        $blogs = $category->blogs()->with('categories')->latest()->get();
         $categories = Category::all();
-        return view('frontend.blogs.index', compact('blogs', 'categories'));
+        
+        if (!view()->exists('frontend.blogs.index')) {
+            return view('blogs.index', compact('blogs', 'categories'))
+                ->with('isFrontend', true)
+                ->with('currentCategory', $category);
+        }
+        
+        return view('frontend.blogs.index', compact('blogs', 'categories', 'category'));
     }
 
     public function toggleFavorite(Blog $blog)
@@ -130,16 +151,28 @@ class BlogController extends Controller
 
         if ($user->favorites()->where('blog_id', $blog->id)->exists()) {
             $user->favorites()->detach($blog->id);
-            return back()->with('success', 'Removed from favorites');
+            $message = 'Removed from favorites';
+            $type = 'warning';
         } else {
             $user->favorites()->attach($blog->id);
-            return back()->with('success', 'Added to favorites');
+            $message = 'Added to favorites';
+            $type = 'success';
         }
+        
+        return back()->with($type, $message);
     }
-
+    
     public function favorites()
     {
-        $favorites = auth()->user()->favorites()->with('categories')->get();
+        $favorites = auth()->user()->favorites()->with('categories')->latest()->get();
+        
+        if (!view()->exists('frontend.favorites')) {
+            // بديل مؤقت
+            return view('blogs.index', ['blogs' => $favorites])
+                ->with('isFrontend', true)
+                ->with('title', 'My Favorites');
+        }
+        
         return view('frontend.favorites', compact('favorites'));
     }
 }

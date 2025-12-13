@@ -47,7 +47,7 @@ class User extends Authenticatable
     /**
      * علاقة المفضلة بين المستخدم والمدونات
      */
-    public function favorites()
+    public function favoriteBlogs()
     {
         return $this->belongsToMany(Blog::class, 'favorites', 'user_id', 'blog_id')->withTimestamps();
     }

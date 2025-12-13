@@ -5,7 +5,7 @@
     <h1>{{ $blog->title }}</h1>
 
     @if($blog->image)
-    <img src="{{ Storage::url($blog->image) }}" class="img-fluid mb-3" alt="{{ $blog->title }}">
+        <img src="{{ Storage::url($blog->image) }}" class="img-fluid mb-3" alt="{{ $blog->title }}">
     @endif
 
     <p>{{ $blog->content }}</p>
@@ -17,7 +17,7 @@
     </p>
 
     @auth
-        <form action="{{ route('blogs.toggleFavorite', $blog->id) }}" method="POST">
+        <form action="{{ route('blogs.frontend.toggleFavorite', $blog) }}" method="POST">
             @csrf
             <button type="submit" class="btn {{ auth()->user()->favoriteBlogs->contains($blog) ? 'btn-danger' : 'btn-success' }}">
                 {{ auth()->user()->favoriteBlogs->contains($blog) ? 'Remove from Favorites' : 'Add to Favorites' }}
